@@ -1,21 +1,25 @@
 package torneo_futbal;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstalacionDeportiva {
 
-    private String nombreInstalacion; // Название установки
-    private Disciplina disciplina;   // Связанная дисциплина
-    private boolean estaReservada;   // Статус установки: занята или свободна
-    private String fechaReserva;     // Дата бронирования (если актуально)
+    private String nombreInstalacion; // Name of the installation
+    private List<Disciplina> disciplinas;   // Associated disciplines
+    private List<ReservaInstalacion> reservas;   // Reservations
+    private int capacidad;
 
-    // Конструктор
-    public InstalacionDeportiva(String nombreInstalacion, Disciplina disciplina) {
+    // Constructor
+    public InstalacionDeportiva(String nombreInstalacion, int capacidad, Disciplina disciplina) {
         this.nombreInstalacion = nombreInstalacion;
-        this.disciplina = disciplina;
-        this.estaReservada = false;   // Изначально установка свободна
-        this.fechaReserva = null;     // Пока нет даты бронирования
+        this.capacidad = capacidad;
+        this.disciplinas = new ArrayList<>();
+        this.reservas = new ArrayList<>();
     }
 
-    // Геттеры и сеттеры
+    // Getters y setters
     public String getNombreInstalacion() {
         return nombreInstalacion;
     }
@@ -24,27 +28,50 @@ public class InstalacionDeportiva {
         this.nombreInstalacion = nombreInstalacion;
     }
 
-    public Disciplina getDisciplina() {
-        return disciplina;
+    public int getCapacidad() {
+        return capacidad;
     }
 
-    public void setDisciplina(Disciplina disciplina) {
-        this.disciplina = disciplina;
+    public void setCapacidad(int capacidad) {
+        this.capacidad = capacidad;
     }
 
-    public boolean isEstaReservada() {
-        return estaReservada;
+    public List<Disciplina> getDisciplina() {
+        return new ArrayList<>(disciplinas);
     }
 
-    public void setEstaReservada(boolean estaReservada) {
-        this.estaReservada = estaReservada;
+    public List<ReservaInstalacion> getReservas() {
+        return new ArrayList<>(reservas);
+    }
+    
+    //setters disciplinas and reservas
+    public void setDisciplinas(Disciplina disciplina) {
+        this.disciplinas.add(disciplina);
     }
 
-    public String getFechaReserva() {
-        return fechaReserva;
+    public void setReservas(ReservaInstalacion reserva) {
+        this.reservas.add(reserva);
     }
 
-    public void setFechaReserva(String fechaReserva) {
-        this.fechaReserva = fechaReserva;
+    // Verificar disponibilidad de instalación
+    public boolean estaDisponible(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        for (ReservaInstalacion reserva : reservas) {
+            if (reserva.getEstado().equals("Reservada")) {
+                // Comprobar si la instalación está solapada en tiempos
+                if (reserva.getFechaReservaInicio().isBefore(fechaFin) && reserva.getFechaReservaFin().isAfter(fechaInicio)) {
+                    return false; // La instalación está solapada en tiempos
+                }
+            }
+        }
+        return true; // La instalación está disponible
     }
+    // toString
+    @Override
+    public String toString() {
+        return "Nombre: " + nombreInstalacion + "\n" +
+               "Disciplinas: " + disciplinas + "\n" +
+               "Reservas: " + reservas;
+    }
+
+
 }
